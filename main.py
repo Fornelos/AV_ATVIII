@@ -3,5 +3,5 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuração da Página (geral)
-st.set_page_config(layout='wide')
+st.set_page_config(layout='wide',page_title="Ta em Ordem",page_icon=":bar_chart:")
+
