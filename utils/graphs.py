@@ -9,7 +9,8 @@ def best_sellers(df):
     # slider limita números de itens mostrados
     max_items = len(best_sellers)
     default_top = min(10, max_items)
-    top_n = st.slider("Mostrar top N produtos", min_value=1, max_value=max_items, value=default_top)
+    top_n = st.slider(label='',min_value=1, max_value=max_items, value=default_top,key='produto')
+    st.write(f'Mostrar top {top_n} produtos:')
     best_sellers = best_sellers.head(top_n)
 
     fig = px.bar(
@@ -44,8 +45,13 @@ def city_profit(df):
     receita_produto = df.groupby('City')['Receita'].sum().sort_values(ascending=False).reset_index()
 
     max_items = len(receita_produto)
+    min_itens = len(receita_produto) - len(receita_produto)
     default_top = min(10, max_items)
-    top_n = st.slider("Mostrar top N cidades", min_value=1, max_value=max_items, value=default_top)
+    top_n = st.slider(label='', min_value=min_itens, max_value=max_items, value=default_top,key='cidade')
+    st.write(f'Mostrar top {top_n} cidades:')
+    print(receita_produto.head(top_n))
+    print(max_items)
+    print(min_itens)
     receita_produto = receita_produto.head(top_n)
 
     fig = px.bar(
@@ -83,7 +89,9 @@ def payment_method(df):
     pagamento = df['Payment Method'].value_counts().reset_index()
 
     max_items = len(pagamento)
-    top_n = st.slider("Mostrar top N formas de pagamento", min_value=1, max_value=max_items, value=max_items)
+    min_itens = len(pagamento) - len(pagamento)
+    top_n = st.slider(label='', min_value=min_itens, max_value=max_items, value=max_items,key='pagamento')
+    st.write(f'Mostrar top {top_n} formas de pagamento:')
     pagamento = pagamento.head(top_n)
 
     # gráfico de barras horizontal
