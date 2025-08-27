@@ -9,7 +9,8 @@ def best_sellers(df):
     # slider limita números de itens mostrados
     max_items = len(best_sellers)
     default_top = min(10, max_items)
-    top_n = st.slider("Mostrar top N produtos", min_value=1, max_value=max_items, value=default_top)
+    top_n = st.slider(label='',min_value=1, max_value=max_items, value=default_top,key='produto')
+    st.write(f'Mostrar top {top_n} produtos:')
     best_sellers = best_sellers.head(top_n)
 
     fig = px.bar(
@@ -19,7 +20,7 @@ def best_sellers(df):
         color="Product",
         text="Quantity",
         category_orders={"Product": best_sellers["Product"].tolist()},
-        color_discrete_sequence=px.colors.sequential.Viridis,
+        color_discrete_sequence=px.colors.sequential.Plasma,
         labels={"Product": "Produto", "Quantity": "Quantidade"},
         title="Produtos Mais Vendidos por Quantidade",
         template="plotly_white",
@@ -38,43 +39,39 @@ def best_sellers(df):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def city_profit(df):
+def city_treemap(df):
+    import streamlit as st
+    import pandas as pd
+    import plotly.express as px
+
+    df = df.copy()
     df['Receita'] = df['Price'] * df['Quantity']
 
-    receita_produto = df.groupby('City')['Receita'].sum().sort_values(ascending=False).reset_index()
+    receita_produto = (
+        df.groupby("City", as_index=False)["Receita"]
+          .sum()
+          .sort_values("Receita", ascending=False)
+    )
 
     max_items = len(receita_produto)
-    default_top = min(10, max_items)
-    top_n = st.slider("Mostrar top N cidades", min_value=1, max_value=max_items, value=default_top)
-    receita_produto = receita_produto.head(top_n)
+    default_top = min(20, max_items)  # treemap tolera mais categorias
+    top_n = st.slider("Mostrar top N cidades (treemap)", min_value=1, max_value=max_items, value=default_top, key='treemap_cidade')
+    receita_top = receita_produto.head(top_n)
 
-    fig = px.bar(
-        receita_produto,
-        x="City",
-        y="Receita",
-        color="City",
-        text="Receita",  # mostra os números nas barras
-        category_orders={"City": receita_produto["City"].tolist()},  # mantém a ordem decrescente
-        color_discrete_sequence=px.colors.sequential.Viridis,
-        labels={"City": "Cidade", "Receita": "Receita"},
-        title="Faturamento por Cidade",
+    fig = px.treemap(
+        receita_top,
+        path=["City"],
+        values="Receita",
+        color="Receita",
+        color_continuous_scale=px.colors.sequential.Plasma,
+        title="Faturamento por Cidade — Treemap",
         template="plotly_white",
-        height=520,
+        height=620,
     )
 
-    # formatação: mostrar valores com separador de milhares e 2 casas, posicionados fora das barras
-    fig.update_traces(texttemplate="R$ %{text:,.2f}", textposition="outside", showlegend=False)
-
-    # eixo y com prefixo de moeda e formato numérico
-    fig.update_yaxes(tickprefix="R$ ", tickformat=",.2f")
-
-    # layout final (rotaciona ticks, margens)
-    fig.update_layout(
-        xaxis_tickangle=-45,
-        margin=dict(t=90, b=160, l=40, r=20),
-        uniformtext_minsize=8,
-        uniformtext_mode="hide",
-    )
+    # mostra label e valor formatado
+    fig.data[0].texttemplate = "%{label}<br>R$ %{value:,.2f}"
+    fig.update_traces(root_color="lightgrey")
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -83,7 +80,9 @@ def payment_method(df):
     pagamento = df['Payment Method'].value_counts().reset_index()
 
     max_items = len(pagamento)
-    top_n = st.slider("Mostrar top N formas de pagamento", min_value=1, max_value=max_items, value=max_items)
+    min_itens = len(pagamento) - len(pagamento)
+    top_n = st.slider(label='', min_value=min_itens, max_value=max_items, value=max_items,key='pagamento')
+    st.write(f'Mostrar top {top_n} formas de pagamento:')
     pagamento = pagamento.head(top_n)
 
     # gráfico de barras horizontal
@@ -95,7 +94,7 @@ def payment_method(df):
     color="Payment Method",                     # colore por método (pode remover se preferir cor única)
     text="count",                               # mostra números nas barras
     category_orders={"Payment Method": pagamento["Payment Method"].tolist()},  # mantém a ordem decrescente
-    color_discrete_sequence=px.colors.sequential.Viridis,
+    color_discrete_sequence=px.colors.sequential.Plasma,
     labels={"count": "Vezes usada", "Payment Method": "Forma de Pagamento"},
     title="Vendas por forma de pagamento",
     template="plotly_white",
