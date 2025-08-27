@@ -63,7 +63,7 @@ if not df_filtrado.empty:
 
     st.header("Qual cidade gera mais receita para o restaurante?")
     st.write("Aqui vamos descobrir qual das franquias gera mais receita para o grupo dono do restaurante.")
-    graphs.city_profit(df_filtrado)
+    graphs.city_treemap(df_filtrado)
 
     st.header("Qual a forma de pagamento mais utilizada?")
     graphs.payment_method(df_filtrado)
